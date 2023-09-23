@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ecommerce</a> &gt; <a href="index.source.html" class="el_package">com.udacity.ecommerce.controllers</a> &gt; <span class="el_source">OrderController.java</span></div><h1>OrderController.java</h1><pre class="source lang-java linenums">package com.udacity.ecommerce.controllers;
+
+import com.udacity.ecommerce.model.persistence.User;
+import com.udacity.ecommerce.model.persistence.UserOrder;
+import com.udacity.ecommerce.model.persistence.repositories.OrderRepository;
+import com.udacity.ecommerce.model.persistence.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/order&quot;)
+public class OrderController {
+
+<span class="fc" id="L22">	private final static Logger log = LoggerFactory.getLogger(OrderController.class);</span>
+
+	private final UserRepository userRepository;
+
+	private final OrderRepository orderRepository;
+
+<span class="fc" id="L28">	public OrderController (UserRepository userRepository, OrderRepository orderRepository){</span>
+<span class="fc" id="L29">		this.userRepository = userRepository;</span>
+<span class="fc" id="L30">		this.orderRepository = orderRepository;</span>
+<span class="fc" id="L31">	}</span>
+	
+	
+	@PostMapping(&quot;/submit/{username}&quot;)
+	public ResponseEntity&lt;UserOrder&gt; submit(@PathVariable String username) {
+<span class="fc" id="L36">		User user = userRepository.findByUsername(username);</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">		if(user == null) {</span>
+<span class="fc" id="L38">			log.warn(&quot;OrderController | submit | Missing username.&quot;);</span>
+<span class="fc" id="L39">			return ResponseEntity.notFound().build();</span>
+		}
+<span class="fc" id="L41">		UserOrder order = UserOrder.createFromCart(user.getCart());</span>
+<span class="fc" id="L42">		orderRepository.save(order);</span>
+
+<span class="fc" id="L44">		log.info(&quot;OrderController | submit | Success from username : {}&quot; ,username);</span>
+<span class="fc" id="L45">		return ResponseEntity.ok(order);</span>
+	}
+	
+	@GetMapping(&quot;/history/{username}&quot;)
+	public ResponseEntity&lt;List&lt;UserOrder&gt;&gt; getOrdersForUser(@PathVariable String username) {
+<span class="fc" id="L50">		User user = userRepository.findByUsername(username);</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">		if(user == null) {</span>
+<span class="fc" id="L52">			log.warn(&quot;OrderController | getOrdersForUser | Missing username.&quot;);</span>
+<span class="fc" id="L53">			return ResponseEntity.notFound().build();</span>
+		}
+
+<span class="fc" id="L56">		log.info(&quot;OrderController | getOrdersForUser | Order listed from username : {}&quot;, username);</span>
+<span class="fc" id="L57">		return ResponseEntity.ok(orderRepository.findByUser(user));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
